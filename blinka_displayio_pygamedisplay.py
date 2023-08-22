@@ -115,6 +115,7 @@ class PyGameDisplay(displayio.Display):
         self._pygame_display_thread = threading.Thread(
             target=self._pygame_refresh, daemon=True
         )
+        self.root_group = displayio.Group()
         self._pygame_display_thread.start()
 
     def _pygame_refresh(self):
