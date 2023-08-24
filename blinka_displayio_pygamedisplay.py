@@ -164,17 +164,25 @@ class PyGameDisplay(displayio.Display):
         if not self._auto_refresh:
             self._pygame_display_force_update = True
 
-    def check_quit(self):
+    def check_quit(self, event=None):
         """
         Check if the quit button on the window is being pressed.
         """
+        # pylint: disable=C0103
+        def _check_quit(ev):
+            if ev.type == pygame.QUIT:
+                # stop and leave method
+                self._pygame_display_tevent.set()
+                self._pygame_display_thread.join()
+                pygame.quit()
+                return True
+            return False
+
         try:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    # stop and leave method
-                    self._pygame_display_tevent.set()
-                    self._pygame_display_thread.join()
-                    pygame.quit()
+            if event is not None:
+                return _check_quit(event)
+            for event in pygame.event.get():  # pylint: disable=R1704
+                if _check_quit(event) is True:
                     return True
         except pygame.error:
             return True
